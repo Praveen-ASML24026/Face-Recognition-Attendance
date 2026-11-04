@@ -1,173 +1,222 @@
-# 📸 Facial Recognition Attendance System
+# Face Attendance Management System
 
-A real-time attendance marking system using facial recognition via webcam. When a known face is detected, the person's name and timestamp are automatically logged to a CSV file — no manual input required.
+An automated, privacy-first, biometric classroom attendance platform built with **Flask**, **InsightFace (SCRFD + ArcFace)**, **SQLite (WAL mode)**, **Fernet Biometric Encryption**, and **Google Sheets API**.
 
----
-
-## 📌 Overview
-
-The system loads reference images of known individuals from a folder, encodes their facial features, and continuously compares them against live webcam frames. On a successful match, it draws a bounding box with the person's name on screen and marks their attendance in a CSV file (once per session).
+Designed for real-world educational institutions, the system solves the challenge of capturing attendance in large, high-density lecture halls from a single panoramic or wide-angle photograph—eliminating proxy attendance, manual roll calls, and identity fraud.
 
 ---
 
-## ✨ Features
+## 🌟 Key Features
 
-- **Real-time face detection** — processes live webcam feed frame by frame
-- **Face recognition** — matches detected faces against a known image database
-- **Auto attendance logging** — writes name + timestamp to `Attendance.csv` on first match
-- **Duplicate prevention** — each person is logged only once per session
-- **Visual feedback** — green bounding box and name label rendered on the live feed
-- **Lightweight processing** — frames downscaled to 25% before recognition for speed
+### 1. Robust Biometric Enrollment (Zero Image Retention)
+- **Multi-Angle Photo & Video Sampling**: Enrolls students using either 3–5 multi-angle photos or a 5-second video recording sampled at optimal frame intervals.
+- **Biometric Quality Filters**: Analyzes image sharpness (Laplacian variance) and 3D head pose angles (yaw, pitch, roll) to reject blurred or heavily occluded samples.
+- **Privacy by Design**: Raw face images and video files are processed strictly in memory and wiped immediately. Only 512-dimensional feature embeddings are retained.
+- **Military-Grade Encryption**: Face feature vectors are serialized and encrypted using Fernet (AES-128-CBC + HMAC-SHA256) before storing in the database.
+
+### 2. High-Density Classroom Recognition
+- **Quadrant Tiling Engine**: Solves the small-face detection problem in high-resolution classroom images (4K / ultra-wide) by dividing the image into overlapping sub-regions alongside full-image scanning.
+- **Non-Maximum Suppression (NMS)**: Merges overlapping detections across tiles using IoU thresholding to eliminate duplicate bounding boxes.
+- **Sub-Second Matching**: Computes cosine similarity against enrolled student embeddings with a tuned threshold ($0.50$).
+
+### 3. Teacher-in-the-Loop Review Workflow
+- **Review Dashboard**: Automatically groups students into **Present** (high confidence) and **Absent** (unmatched).
+- **Manual Status Override**: Teachers can inspect cropped face thumbnails, review detections, toggle attendance status, or add manual notes before finalizing.
+- **Historical Records**: Full attendance session history with aggregated metrics (total enrolled, present count, attendance rate).
+
+### 4. Automated Google Sheets Synchronization
+- **Live Cloud Sync**: Seamlessly exports verified attendance sessions to institutional Google Sheets using Service Account authentication (`gspread`).
+- **Dynamic Date Columns**: Detects existing dates or automatically generates new `DD-MM-YYYY` columns.
+- **Non-Downgrade Safety Rule**: Prevents network retries or resubmissions from overwriting an existing **P** (Present) status with an **A** (Absent).
+
+### 5. Security & Production Hardening
+- **CSRF Protection**: Integrated across all state-changing endpoints with Flask-WTF.
+- **Role-Based Access**: Session-based teacher authentication with Werkzeug password hashing.
+- **Database Concurrency**: Configured SQLite with Write-Ahead Logging (WAL) and 30-second busy timeout to avoid locked database errors during external inspection.
+- **Dockerized Ready**: Optimized multi-stage Docker build with OpenCV runtime libraries and Gunicorn WSGI.
 
 ---
 
-## 🗂️ Project Structure
+## 🏗️ System Architecture
 
+```mermaid
+flowchart TD
+    subgraph Enrollment ["1. Biometric Enrollment Pipeline"]
+        A[Student Video / Multi-Angle Photos] --> B[SCRFD Face Detection & Quality Filter]
+        B --> C[ArcFace 512-D Embedding Extraction]
+        C --> D[L2 Normalization & Fernet Encryption]
+        D --> E[(SQLite Database: Encrypted Embeddings)]
+        A -.->|Discard Raw Media| Trash[Memory Flush / Privacy Zero-Retention]
+    end
+
+    subgraph Classroom ["2. Attendance Capture & Inference"]
+        F[Classroom Group Image] --> G[Quadrant Tiler & Full-Scale Scan]
+        G --> H[SCRFD Multi-Face Detection]
+        H --> I[NMS Deduplication IoU 0.40]
+        I --> J[ArcFace Feature Extraction]
+        J --> K[Cosine Similarity Engine vs Decrypted Embeddings]
+        E --> K
+        K --> L[Attendance Session Draft Present / Absent]
+    end
+
+    subgraph Review ["3. Teacher Review & Cloud Sync"]
+        L --> M[Teacher Web Dashboard]
+        M -->|Confirm / Manual Overrides| N[Finalized Attendance Session]
+        N --> O[(Local SQLite Database)]
+        N --> P[Google Sheets Sync Engine API]
+        P --> Q[Institutional Google Sheet]
+    end
 ```
-FacialRecognitionAttendance/
-├── main.py                  # Core application
-├── Attendance.csv           # Auto-generated attendance log
-└── ImagesAttendance/        # Reference images (one per person)
-    ├── John.jpg
-    ├── Jane.png
-    └── ...
+
+---
+
+## 🛠️ Technology Stack
+
+| Domain | Technology / Library | Purpose |
+| :--- | :--- | :--- |
+| **Backend Framework** | Flask 3.x, Flask-Login, Flask-WTF | Web server, session management, CSRF security |
+| **Database & ORM** | SQLite (WAL mode), SQLAlchemy | Local relational database with concurrent read support |
+| **Computer Vision** | OpenCV (`opencv-python-headless`) | Frame decoding, resizing, tiling, Laplacian blur detection |
+| **Deep Learning** | InsightFace (`buffalo_l`), ONNX Runtime | SCRFD face detection & ArcFace 512-D embedding extraction |
+| **Biometric Security** | Cryptography (`Fernet`) | Symmetrical AES-128-CBC encryption of face embeddings |
+| **Cloud Integration** | `gspread`, `google-auth` | Automated synchronization with Google Sheets |
+| **Containerization** | Docker, Docker Compose, Gunicorn | Production deployment and system dependency packaging |
+
+---
+
+## 📁 Repository Structure
+
+```text
+face-attendance/
+├── app/
+│   ├── attendance/           # Attendance capture, session review, and history routes
+│   │   ├── routes.py
+│   │   └── __init__.py
+│   ├── auth/                 # Teacher authentication & session handling
+│   │   ├── routes.py
+│   │   └── __init__.py
+│   ├── face_engine/          # Computer vision and deep learning core
+│   │   ├── classroom.py      # Quadrant tiling, NMS deduplication, group recognition
+│   │   ├── engine.py         # SCRFD detection, ArcFace embeddings, Fernet encryption
+│   │   └── __init__.py
+│   ├── google_sheets/        # Google Sheets API synchronization client
+│   │   ├── sync.py           # Auto-headers, batch cell updates, non-downgrade logic
+│   │   └── __init__.py
+│   ├── students/             # Student roster management & biometric enrollment
+│   │   ├── routes.py
+│   │   └── __init__.py
+│   ├── templates/            # Jinja2 HTML responsive UI templates
+│   ├── extensions.py         # Shared SQLAlchemy, LoginManager, CSRF instances
+│   ├── models.py             # User, Student, FaceEmbedding, AttendanceSession models
+│   └── __init__.py           # Application factory with SQLite WAL configuration
+├── instance/                 # Local database storage (attendance.db)
+├── models/                   # Local InsightFace model checkpoints (buffalo_l)
+├── config.py                 # Central configuration loader with python-dotenv
+├── run.py                    # Application entrypoint & CLI commands
+├── run_all_tests.py          # Master test suite runner
+├── Dockerfile                # Docker container definition
+├── docker-compose.yml        # Docker service orchestration
+└── requirements.txt          # Python dependencies
 ```
 
-> Image filename = person's name (e.g. `Praveen.jpg` → logged as `PRAVEEN`)
-
 ---
 
-## ⚙️ Tech Stack
-
-| Library | Purpose |
-|---|---|
-| `face_recognition` | Face encoding and matching (dlib-based) |
-| `OpenCV (cv2)` | Webcam capture and frame rendering |
-| `numpy` | Face distance calculation |
-| `os` | Image directory loading |
-| `datetime` | Timestamp generation |
-
----
-
-## 🚀 Getting Started
+## 🚀 Quick Start Guide
 
 ### Prerequisites
+- Python 3.10+ (Python 3.12 recommended)
+- `ffmpeg` or system OpenCV dependencies (for Linux: `libgl1`, `libglib2.0-0`, `libgomp1`)
+- Git
 
-- Python 3.7+
-- Webcam
-- CMake and dlib (required by `face_recognition`)
-
-### Install Dependencies
-
-```bash
-pip install face_recognition opencv-python numpy
-```
-
-> On Windows, install CMake and Visual Studio Build Tools before `face_recognition`.
-> On Linux: `sudo apt install cmake libboost-all-dev`
-
-### Set Up Reference Images
-
-1. Create a folder for known faces:
-```
-ImagesAttendance/
-├── Alice.jpg
-├── Bob.png
-```
-2. Use clear, front-facing photos — one image per person.
-3. The filename (without extension) is used as the name in the attendance log.
-
-### Configure Paths
-
-In `main.py`, update the two hardcoded paths:
-
-```python
-# Line 5 — folder of known faces
-path = r'path/to/ImagesAttendance'
-
-# Inside markAttendance() — CSV output file
-with open(r'path/to/Attendance.csv', 'r+') as f:
-```
-
-### Run
+### 1. Clone & Set Up Virtual Environment
 
 ```bash
-python main.py
+git clone https://github.com/Praveen-ASML24026/Face-Recognition-Attendance.git
+cd Face-Recognition-Attendance
+
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+# Windows:
+.\venv\Scripts\activate
+# Linux/macOS:
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
 ```
 
-Press **`Q`** to quit the webcam window.
+### 2. Configure Environment Variables
+
+Create a `.env` file in the project root (refer to `.env.example`):
+
+```ini
+FLASK_APP=run.py
+FLASK_ENV=development
+SECRET_KEY=generate-a-strong-secret-key-here
+ENCRYPTION_KEY=generate-fernet-key-here
+DATABASE_URL=sqlite:///instance/attendance.db
+
+# Optional Google Sheets Integration
+GOOGLE_SERVICE_ACCOUNT_JSON=instance/credentials.json
+GOOGLE_SHEET_ID=your-google-sheet-id-here
+```
+
+To generate a valid `ENCRYPTION_KEY`:
+```bash
+python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+```
+
+### 3. Initialize Teacher Account & Run Server
+
+```bash
+# Create initial admin/teacher credentials
+flask --app run.py create-teacher
+
+# Run the local development server
+python run.py
+```
+Open [http://127.0.0.1:5000](http://127.0.0.1:5000) in your browser.
 
 ---
 
-## 📋 Attendance CSV Format
+## 🐳 Docker Deployment
 
-```
-Name,Time
-ALICE,09:15:32
-BOB,09:17:45
-```
+Run the complete application in a self-contained container:
 
-Each person is logged once per run, even if they appear multiple times in the session.
+```bash
+# Build and run with Docker Compose
+docker-compose up --build -d
+
+# View container logs
+docker-compose logs -f
+```
+The application will be accessible at [http://localhost:5000](http://localhost:5000).
 
 ---
 
-## 🔄 How It Works
+## 🧪 Testing & Verification
 
-```
-Load images from ImagesAttendance/
-        │
-        ▼
-Encode facial features for each image
-        │
-        ▼
-Open webcam → capture frame
-        │
-        ▼
-Resize frame to 25% (speed optimisation)
-        │
-        ▼
-Detect face locations in frame
-        │
-        ▼
-Encode detected faces
-        │
-        ▼
-Compare with known encodings (face distance)
-        │
-  Match found?
-  ├── Yes → Draw box + name label
-  │         Mark attendance in CSV (if not already logged)
-  └── No  → Continue
-        │
-        ▼
-Loop until 'Q' pressed
+The project includes an end-to-end master test suite verifying all 8 operational phases:
+
+```bash
+python run_all_tests.py
 ```
 
----
-
-## ⚠️ Notes
-
-- Ensure good lighting for accurate recognition.
-- One clear, front-facing photo per person is sufficient for encoding.
-- The CSV file must exist before running — create it manually if needed:
-  ```
-  Name,Time
-  ```
-- Recognition accuracy depends on `face_recognition` tolerance (default threshold used).
+### Verification Coverage:
+1. **Phase 1: Foundation & Auth** — User models, password hashing, student directory CRUD.
+2. **Phase 2: Face Engine** — SCRFD face detection, ArcFace 512-D vectors, cosine similarity, sharpness/pose evaluation.
+3. **Phase 3: Biometric Enrollment** — Photo/video sampling, Fernet encryption integrity, zero image leakage.
+4. **Phase 4: Classroom Tiling** — High-resolution quadrant tiling, IoU overlap calculation, NMS deduplication.
+5. **Phase 5 & 6: Attendance Workflow** — Review interface, manual override state persistence, session history.
+6. **Phase 7: Google Sheets API** — Header formatting, non-downgrade logic, batch updates.
+7. **Phase 8: Security** — CSRF verification, unauthorized route protection, ciphertext encryption guarantees.
 
 ---
 
-## 🔮 Future Enhancements
+## 🔒 Privacy & Compliance
 
-- [ ] GUI for managing known faces and viewing attendance
-- [ ] Date column in CSV for multi-day tracking
-- [ ] Database backend (MySQL/SQLite) instead of CSV
-- [ ] Unknown face alerting
-- [ ] Multiple encodings per person for improved accuracy
-- [ ] Export attendance report as PDF
-
----
-
-## 📄 License
-
-This project is intended for academic and educational purposes.
+- **No Raw Biometric Storage**: Student face photos and videos are processed exclusively in volatile memory and destroyed once embeddings are extracted.
+- **Encrypted Feature Vectors**: Mathematical face representations are stored as AES-128 encrypted blobs.
+- **Audit Logging**: Every attendance session logs the teacher identity, timestamp, detection confidence scores, and manual review history.
