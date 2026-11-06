@@ -13,10 +13,14 @@ SCOPES = [
 ]
 
 
+_SENTINEL = object()
+
+
 class GoogleSheetsSync:
     """
     Synchronizes teacher-confirmed attendance sessions with Google Sheets.
     Implements:
+    - Google Apps Script Webhook synchronization (Zero-GCP, instant setup)
     - Service account authentication (from file path or JSON string in .env)
     - Auto-creation and detection of date columns (format DD-MM-YYYY)
     - Non-downgrade rule: Never downgrades an existing 'P' to 'A' upon resubmission
@@ -26,16 +30,24 @@ class GoogleSheetsSync:
 
     def __init__(
         self,
-        service_account_source: Optional[str] = None,
-        sheet_id: Optional[str] = None
+        service_account_source: Any = _SENTINEL,
+        sheet_id: Any = _SENTINEL,
+        webhook_url: Any = _SENTINEL
     ):
-        self.service_account_source = service_account_source or os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON")
-        self.sheet_id = sheet_id or os.getenv("GOOGLE_SHEET_ID")
+        if service_account_source is not _SENTINEL or sheet_id is not _SENTINEL:
+            self.webhook_url = webhook_url if webhook_url is not _SENTINEL else None
+            self.service_account_source = service_account_source if service_account_source is not _SENTINEL else None
+            self.sheet_id = sheet_id if sheet_id is not _SENTINEL else None
+        else:
+            self.webhook_url = os.getenv("GOOGLE_SHEET_WEBHOOK_URL") if webhook_url is _SENTINEL else webhook_url
+            self.service_account_source = os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON") if service_account_source is _SENTINEL else service_account_source
+            self.sheet_id = os.getenv("GOOGLE_SHEET_ID") if sheet_id is _SENTINEL else sheet_id
+
         self._client: Optional[gspread.Client] = None
 
     def is_configured(self) -> bool:
-        """Returns True if both credentials and sheet ID are configured."""
-        return bool(self.service_account_source and self.sheet_id)
+        """Returns True if webhook URL or (credentials and sheet ID) are configured."""
+        return bool(self.webhook_url or (self.service_account_source and self.sheet_id))
 
     def _get_credentials(self) -> Optional[Credentials]:
         """Loads Google Service Account credentials from JSON file or JSON string."""
@@ -101,8 +113,28 @@ class GoogleSheetsSync:
             Tuple of (success: bool, message: str)
         """
         if not self.is_configured():
-            return False, "Google Sheets credentials or Sheet ID are not configured in .env."
+            return False, "Google Sheets credentials, Sheet ID, or Webhook URL are not configured in .env."
 
+        # 1. Google Apps Script Webhook Flow (Direct HTTP, Zero-Credentials)
+        if self.webhook_url:
+            try:
+                import requests
+                date_str = session_date.strftime("%d-%m-%Y")
+                payload = {
+                    "session_date": date_str,
+                    "attendance": attendance_map,
+                    "names": student_names
+                }
+                res = requests.post(self.webhook_url, json=payload, timeout=25)
+                if res.status_code == 200:
+                    present_count = sum(1 for s in attendance_map.values() if s == "P")
+                    return True, f"Successfully synced {len(attendance_map)} students to Google Sheets via Webhook for {date_str} ({present_count} Present)."
+                else:
+                    return False, f"Google Sheet Webhook returned HTTP {res.status_code}: {res.text}"
+            except Exception as e:
+                return False, f"Failed to sync with Google Sheet Webhook: {str(e)}"
+
+        # 2. Google Service Account (gspread) Flow
         client = self.get_client()
         if not client:
             return False, "Failed to authenticate Google Service Account. Please verify credentials."
