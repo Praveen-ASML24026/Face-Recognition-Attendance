@@ -342,3 +342,20 @@ CHANGES MADE:
 ISSUES / ERRORS:
 - None. Google Sheet is now fully connected and active.
 ----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+TIMESTAMP: 2026-11-06 14:55:00 IST
+ACTION: Authored comprehensive markdown guide for Google Sheets integration (GOOGLE_SHEETS_GUIDE.md)
+
+CHANGES MADE:
+1. Created `GOOGLE_SHEETS_GUIDE.md` containing:
+   - Architecture overview comparing Apps Script Webhook vs GCP Service Account approaches.
+   - Step-by-step setup guide for Google Apps Script Webhook (Method 1).
+   - Step-by-step setup guide for Google Cloud Service Account (Method 2).
+   - HTTP POST JSON payload and response schemas for the synchronization API.
+   - Explanation of business logic (automatic date column creation, student row mapping, non-downgrade rule).
+   - Verification procedures (CLI commands, unit test runner, and web UI review).
+   - Troubleshooting FAQ covering common status codes and authorization warnings.
+
+ISSUES / ERRORS:
+- None.
+----------------------------------------------------------------------------------------------------
