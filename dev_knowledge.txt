@@ -379,3 +379,23 @@ CHANGES MADE:
 ISSUES / ERRORS:
 - None.
 ----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+TIMESTAMP: 2026-11-06 15:03:30 IST
+ACTION: Enhanced USER_GUIDE.md with comprehensive project explanation and complete technology stack
+
+CHANGES MADE:
+1. Updated `USER_GUIDE.md` with:
+   - Detailed project explanation: real-world problems solved (time wastage, proxy attendance, small back-row faces, biometric privacy risks) and deep learning mechanics (quadrant tiling, SCRFD detector, ArcFace 512-D cosine matching).
+   - Complete categorized Technology Stack table across 7 engineering domains:
+     * Backend Web Framework: Flask 3.x, Flask-Login, Flask-WTF, Werkzeug Security.
+     * Database & Storage: SQLAlchemy 2.x, SQLite 3 in WAL mode with 30s timeout.
+     * AI & Computer Vision: InsightFace (`buffalo_l`), ONNX Runtime, OpenCV, NumPy.
+     * Security & Encryption: Cryptography (`Fernet` AES-128-CBC + HMAC-SHA256).
+     * Cloud Synchronization: Google Apps Script Webhook, `gspread`, Google OAuth2.
+     * Frontend: Server-rendered Jinja2, responsive semantic HTML5 and CSS3.
+     * DevOps: Docker, Docker Compose, Gunicorn WSGI.
+   - Synchronized all navigation links and table of contents.
+
+ISSUES / ERRORS:
+- None.
+----------------------------------------------------------------------------------------------------
