@@ -359,3 +359,23 @@ CHANGES MADE:
 ISSUES / ERRORS:
 - None.
 ----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+TIMESTAMP: 2026-11-06 14:59:00 IST
+ACTION: Authored comprehensive end-to-end User & Operations Guide (USER_GUIDE.md)
+
+CHANGES MADE:
+1. Created `USER_GUIDE.md` covering:
+   - System overview, architecture flow diagram, and cryptographic privacy guarantees.
+   - Quick start commands and web dashboard access instructions.
+   - Teacher account setup (terminal CLI command vs web self-registration).
+   - Student roster creation (Step 1) and biometric enrollment (Step 2 - multi-angle photos and 5s video keyframe sampling).
+   - Classroom attendance photo upload guidelines, quadrant tiling explanations, and confidence threshold tuning.
+   - Interactive teacher review dashboard: manual Present/Absent toggles, unknown face crops inspection, and finalization.
+   - Automatic Google Sheets sync and non-downgrade safety rule explanation.
+   - Historical audit logs and offline tolerance mode.
+   - Photography guidelines for high-density lecture halls to maximize face recognition accuracy ($\ge 95\%$).
+   - Troubleshooting FAQ addressing student appearance changes, offline handling, and configuration changes.
+
+ISSUES / ERRORS:
+- None.
+----------------------------------------------------------------------------------------------------
