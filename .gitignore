@@ -30,6 +30,7 @@ venv/
 env/
 ENV/
 .venv/
+virtualenv/
 
 # ==========================================
 # Environment Variables & Secrets
@@ -37,12 +38,23 @@ ENV/
 .env
 .env.local
 .env.*.local
+*.env
 *.pem
 *.key
+*.crt
+*.cer
+*.pfx
+*.p12
+*.secret
 credentials.json
+*credentials*.json
+*credential*.json
 *service_account*.json
 *service-account*.json
 google_credentials.json
+client_secret*.json
+token.json
+*token*.json
 
 # ==========================================
 # Database & Instance Storage
@@ -53,6 +65,9 @@ instance/
 *.sqlite3
 *.db-shm
 *.db-wal
+*.db-journal
+*.sql
+*.dump
 
 # ==========================================
 # Deep Learning Models & Weights
@@ -63,24 +78,61 @@ models/
 *.pt
 *.weights
 *.bin
+*.h5
+*.pkl
 
 # ==========================================
-# Test Media & User Uploads
+# Test Media, Photos & Video Recordings
 # ==========================================
 prav-face.mp4
+prv.mp4
 *.mp4
 *.avi
 *.mov
 *.mkv
+*.webm
+*.flv
+*.wmv
+*.m4v
+*.h264
+*.264
+*.jpg
+*.jpeg
+*.png
+*.webp
+*.bmp
+*.tiff
+*.gif
 uploads/
 temp/
 tmp/
 instance/tmp/
 
 # ==========================================
-# Testing & Code Coverage
+# Spreadsheets & CSV Data Exports
+# ==========================================
+*.csv
+Attendance.csv
+*.xlsx
+*.xls
+
+# ==========================================
+# Compressed Archives
+# ==========================================
+*.zip
+*.tar.gz
+*.tar
+*.rar
+*.7z
+*.gz
+
+# ==========================================
+# Testing, Typing & Code Coverage
 # ==========================================
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
 .coverage
 .coverage.*
 htmlcov/
@@ -100,9 +152,14 @@ logs/
 .idea/
 *.sublime-project
 *.sublime-workspace
+*.code-workspace
 *.swp
 *.swo
 *~
+*.bak
+*.tmp
+*.temp
+*.orig
 
 # ==========================================
 # Operating System Artifacts
@@ -113,10 +170,18 @@ logs/
 .Spotlight-V100
 .Trashes
 ehthumbs.db
+ehthumbs_vista.db
 Thumbs.db
+Thumbs.db:encryptable
 [Dd]esktop.ini
 
 # ==========================================
 # Docker Local Overrides
 # ==========================================
 docker-compose.override.yml
+
+# ==========================================
+# Legacy Prototype Scripts
+# ==========================================
+main.py
+

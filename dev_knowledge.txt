@@ -442,3 +442,24 @@ CHANGES MADE:
 ISSUES / ERRORS:
 - None.
 ----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+TIMESTAMP: 2026-11-06 18:13:00 IST
+ACTION: Expanded .gitignore with all unnecessary files and untracked legacy prototype script
+
+CHANGES MADE:
+1. Updated `.gitignore` across comprehensive categories:
+   - Untracked and ignored legacy standalone script `main.py` (preserved locally on disk).
+   - Explicitly ignored `prv.mp4` alongside `prav-face.mp4`.
+   - Added all video/recording formats: `*.webm`, `*.flv`, `*.wmv`, `*.m4v`, `*.h264`, `*.264`.
+   - Added image capture exclusions: `*.jpg`, `*.jpeg`, `*.png`, `*.webp`, `*.bmp`, `*.tiff`, `*.gif`.
+   - Added spreadsheet/CSV exclusions: `*.csv`, `Attendance.csv`, `*.xlsx`, `*.xls`.
+   - Added archive exclusions: `*.zip`, `*.tar.gz`, `*.rar`, `*.7z`.
+   - Added security/token exclusions: `token.json`, `*token*.json`, `client_secret*.json`, `*.secret`, `*.pfx`, `*.p12`.
+   - Added database dump exclusions: `*.sql`, `*.dump`, `*.db-journal`.
+   - Added linter/cache exclusions: `.mypy_cache/`, `.ruff_cache/`, `.cache/`.
+   - Added editor/temp exclusions: `*.bak`, `*.tmp`, `*.temp`, `*.code-workspace`.
+2. Cleaned git index (`git rm --cached main.py`) to eliminate legacy prototype code from the repository.
+
+ISSUES / ERRORS:
+- None.
+----------------------------------------------------------------------------------------------------
