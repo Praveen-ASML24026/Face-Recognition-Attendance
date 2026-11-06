@@ -427,3 +427,18 @@ NOTES / FINDINGS:
 ISSUES / ERRORS:
 - None. 100% in sync.
 ----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+TIMESTAMP: 2026-11-06 15:19:30 IST
+ACTION: Consolidated GOOGLE_SHEETS_GUIDE.md into master README.md
+
+CHANGES MADE:
+1. Audited and merged `GOOGLE_SHEETS_GUIDE.md` into `README.md`:
+   - Unified all project documentation into a single master `README.md`.
+   - Included full Google Sheets dual-pathway integration guide (Method 1: Apps Script Webhook with complete JavaScript handler code, Method 2: GCP Service Account).
+   - Documented API JSON request & response schemas, Non-Downgrade Safety Rule, and dynamic column provisioning.
+   - Preserved all existing architecture diagrams, technology stack tables, quick-start instructions, Docker deployment, and testing steps.
+2. Removed standalone `GOOGLE_SHEETS_GUIDE.md` to eliminate documentation redundancy.
+
+ISSUES / ERRORS:
+- None.
+----------------------------------------------------------------------------------------------------
