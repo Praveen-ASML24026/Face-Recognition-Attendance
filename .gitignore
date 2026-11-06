@@ -5,6 +5,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.so
+
 .Python
 build/
 develop-eggs/
@@ -181,7 +182,8 @@ Thumbs.db:encryptable
 docker-compose.override.yml
 
 # ==========================================
-# Legacy Prototype Scripts
+# Local Development, Logs & Untracked Files
 # ==========================================
 main.py
-
+test_foundation.py
+dev_knowledge.txt
