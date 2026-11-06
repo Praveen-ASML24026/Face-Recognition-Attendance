@@ -5,19 +5,63 @@ An end-to-end operational and technical manual for teachers, administrators, and
 ---
 
 ## 📑 Table of Contents
-1. [What is this Project? (Project Explanation)](#-what-is-this-project-project-explanation)
-2. [Complete Technology Stack](#-complete-technology-stack)
-3. [System Architecture & Processing Pipeline](#-system-architecture--processing-pipeline)
-4. [Quick Start: Launching the Application](#-quick-start-launching-the-application)
-5. [Teacher Account Management](#-teacher-account-management)
-6. [Step 1: Student Directory Registration](#-step-1-student-directory-registration)
-7. [Step 2: Biometric Enrollment (Photos & Video)](#-step-2-biometric-enrollment-photos--video)
-8. [Step 3: Taking Classroom Attendance](#-step-3-taking-classroom-attendance)
-9. [Step 4: Teacher Review & Manual Adjustments](#-step-4-teacher-review--manual-adjustments)
-10. [Step 5: Google Sheets Cloud Synchronization](#-step-5-google-sheets-cloud-synchronization)
-11. [Viewing Attendance History & Audit Logs](#-viewing-attendance-history--audit-logs)
-12. [Photography Guidelines for Maximum Accuracy](#-photography-guidelines-for-maximum-accuracy)
-13. [Troubleshooting & FAQ](#-troubleshooting--faq)
+1. [👩‍🏫 Non-Technical Teacher Cheatsheet (Daily 30-Second Routine)](#-non-technical-teacher-cheatsheet-daily-30-second-routine)
+2. [What is this Project? (Project Explanation)](#-what-is-this-project-project-explanation)
+3. [Complete Technology Stack](#-complete-technology-stack)
+4. [System Architecture & Processing Pipeline](#-system-architecture--processing-pipeline)
+5. [Quick Start: Launching the Application](#-quick-start-launching-the-application)
+6. [Teacher Account Management](#-teacher-account-management)
+7. [Step 1: Student Directory Registration](#-step-1-student-directory-registration)
+8. [Step 2: Biometric Enrollment (Photos & Video)](#-step-2-biometric-enrollment-photos--video)
+9. [Step 3: Taking Classroom Attendance](#-step-3-taking-classroom-attendance)
+10. [Step 4: Teacher Review & Manual Adjustments](#-step-4-teacher-review--manual-adjustments)
+11. [Step 5: Google Sheets Cloud Synchronization](#-step-5-google-sheets-cloud-synchronization)
+12. [Viewing Attendance History & Audit Logs](#-viewing-attendance-history--audit-logs)
+13. [Photography Guidelines for Maximum Accuracy](#-photography-guidelines-for-maximum-accuracy)
+14. [Plain-English Glossary & FAQ for Non-Tech Users](#-plain-english-glossary--faq-for-non-tech-users)
+
+---
+
+## 👩‍🏫 Non-Technical Teacher Cheatsheet (Daily 30-Second Routine)
+
+> [!TIP]
+> **Are you a teacher, professor, or school administrator with zero coding background?**  
+> You do **not** need to understand Python, AI math, or terminal commands to use this daily. Just follow these 4 simple steps:
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│               YOUR DAILY 4-STEP ATTENDANCE ROUTINE                     │
+├────────────────────────────────────────────────────────────────────────┤
+│ 1. LOG IN           👉 Open http://127.0.0.1:5000 and enter your name  │
+│ 2. SNAP & UPLOAD    👉 Click "Take Attendance" & upload 1–2 photos     │
+│ 3. GLANCE & REVIEW  👉 Green = Present, Red = Absent (Click to toggle) │
+│ 4. CLICK CONFIRM    👉 Done! Your Google Sheet updates automatically   │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+### Detailed 4-Step Breakdown:
+
+#### 1. Open the Website & Log In
+- On your phone or laptop, open your browser and go to the attendance link provided by your IT department (e.g., `http://127.0.0.1:5000/login`).
+- Type your teacher username and password and click **Log In**.
+
+#### 2. Snap & Upload Classroom Photos
+- Click **Take Attendance** in the top navigation bar.
+- Stand near the front podium and snap **1 or 2 wide photos** of your students sitting at their desks.
+- Click **Choose File** $\rightarrow$ select the photo(s) from your phone or laptop $\rightarrow$ click the blue **Analyze Classroom & Recognize Faces** button.
+
+#### 3. Glance at the Review Screen
+- In 5–10 seconds, the AI will display the student list:
+  - 🟢 **Green Badge (Present)**: The AI recognized this student.
+  - 🔴 **Red Badge (Absent)**: The student was not seen.
+- **Did the camera miss someone?** (e.g. someone sitting behind a tall student or wearing a winter hood):
+  - Just click the **Mark Present** button next to their name.
+
+#### 4. Click "Confirm & Finalize Attendance"
+- Click the big blue button at the bottom: **Confirm & Finalize Attendance**.
+- **You're finished!** That class is recorded, and your Google Sheet spreadsheet is instantly updated with today's date and Present/Absent marks.
+
+---
 
 ---
 
@@ -287,25 +331,42 @@ To achieve $\ge 95\%$ first-pass recognition accuracy in large classrooms:
 
 ---
 
-## ❓ Troubleshooting & FAQ
+## ❓ Plain-English Glossary & FAQ for Non-Tech Users
 
-### 1. What happens if an enrolled student gets a haircut, glasses, or beard?
-- Go to **Students** $\rightarrow$ Click **Edit / Re-enroll** next to their name.
-- Upload new photos or a quick 5-second video.
-- The new biometric vectors will be added to their encrypted profile without deleting their historical attendance logs.
+### Plain-English Glossary (Zero Technical Jargon)
 
-### 2. What if a student is marked absent even though they were present?
-- In the Review screen, simply click **Mark Present** before clicking "Confirm Attendance".
-- You can also raise or lower the match threshold on the upload screen (e.g., try `0.45` for distant classrooms).
+| Term You See in App | What It Means in Simple English |
+| :--- | :--- |
+| **"Confidence Score"** (e.g. `0.78`) | How sure the AI is that this face belongs to the student. `1.0` is a 100% exact twin match; anything above `0.50` is considered a confirmed match. |
+| **"Confidence Threshold"** (`0.50`) | The sensitivity dial. **Leave it at `0.50` by default.** If the classroom is dark or students sit very far, lower it to `0.45` to catch more faces. If you want ultra-strict verification, raise it to `0.55`. |
+| **"Unknown Faces"** | People the camera saw who are not registered in the system (e.g. guest lecturers, auditors, or students whose faces were partially hidden). |
+| **"Informed Consent"** | The legal checkbox confirming the student agreed to register their face in the school system. |
+| **"Non-Downgrade Rule"** | A safety rule: If you accidentally take attendance twice on the same day, the system will **never** change someone who was marked "Present" into "Absent". |
+| **"Google Sheet Webhook"** | The automated bridge that copies your confirmed attendance into your school's Google Sheet in real time. |
 
-### 3. How do I change the Google Sheet where attendance is saved?
-- Open your [`.env`](file:///c:/Projects/FCP-teamup/face-attendance/.env) file.
-- Update `GOOGLE_SHEET_WEBHOOK_URL` with your new Webhook URL (see [`GOOGLE_SHEETS_GUIDE.md`](file:///c:/Projects/FCP-teamup/face-attendance/GOOGLE_SHEETS_GUIDE.md)).
-- Restart the Flask server.
+---
 
-### 4. Can students mark their own attendance?
-- **No.** The system requires teacher login credentials to access the camera upload, review, and Google Sheets submission endpoints. Students cannot access these URLs without logging in.
+### Everyday Questions for Teachers & Staff
 
-### 5. What if the internet goes down during class?
-- The application stores all attendance sessions and encrypted biometrics in the local SQLite database ([`instance/attendance.db`](file:///c:/Projects/FCP-teamup/face-attendance/instance/)).
-- You can take attendance completely offline. When internet connectivity is restored, re-opening the session in **History** and clicking confirm will sync the backlog to Google Sheets.
+#### 1. Do I need to be a programmer or know terminal commands to use this daily?
+**No, absolutely not.** Starting the server is only done once by IT/admin. As a teacher or staff member, you interact solely with a clean, visual web interface on your phone or laptop just like using Gmail or Google Classroom.
+
+#### 2. What if an enrolled student gets a new haircut, puts on glasses, or grows a beard?
+- Go to the **Students** menu $\rightarrow$ click **Edit / Re-enroll** next to their name.
+- Upload 1 or 2 new photos or a quick 5-second video.
+- The new look is added to their face profile immediately without deleting their past attendance records!
+
+#### 3. What if a student was sitting behind a pillar and the camera missed them?
+- On the Review screen, just click the green **Mark Present** button next to their name before clicking Confirm. You always have full human control.
+
+#### 4. Can students mark their own attendance or cheat the system?
+- **No.** The website requires your teacher login. Students cannot access the camera upload or review page.
+- Also, because the teacher snaps the live classroom photo in person, students who are not physically in their seats cannot be marked present.
+
+#### 5. What if the school's Wi-Fi goes down while taking attendance?
+- Everything saves safely in the local system database on your device.
+- You can review and confirm attendance normally. Once your Wi-Fi is back on, open **History** and click Confirm to push the attendance records to your Google Sheet!
+
+#### 6. Are student photos stored anywhere where hackers could steal them?
+- **No.** All photos and videos uploaded during registration or class are automatically wiped from memory as soon as the facial math is extracted. No photos exist on the hard drive.
+

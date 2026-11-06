@@ -399,3 +399,16 @@ CHANGES MADE:
 ISSUES / ERRORS:
 - None.
 ----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+TIMESTAMP: 2026-11-06 15:08:15 IST
+ACTION: Added Non-Technical Teacher Cheatsheet & Plain-English Glossary to USER_GUIDE.md
+
+CHANGES MADE:
+1. Enhanced `USER_GUIDE.md` with zero-jargon sections for non-technical users:
+   - Added `👩‍🏫 Non-Technical Teacher Cheatsheet (Daily 30-Second Routine)`: 4 visual steps (Log in -> Snap & Upload -> Glance & Review -> Click Confirm).
+   - Added `Plain-English Glossary`: Simple definitions for Confidence Score, Threshold, Unknown Faces, Informed Consent, Non-Downgrade Rule, and Webhooks.
+   - Added Everyday FAQ: Addressing student appearance changes (haircut/beard), missed students behind pillars, offline Wi-Fi tolerance, and privacy safety guarantees.
+
+ISSUES / ERRORS:
+- None.
+----------------------------------------------------------------------------------------------------
